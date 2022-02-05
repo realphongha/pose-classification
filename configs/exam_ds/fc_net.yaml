@@ -1,0 +1,39 @@
+GPUS: "0"
+WORKERS: 4
+OUTPUT: "output"
+
+CUDNN:
+  BENCHMARK: true
+  DETERMINISTIC: false
+  ENABLED: true
+
+DATASET: 
+  NAME: "exam"
+  TRAIN: "datasets/exam_action_ds/train"
+  VAL: "datasets/exam_action_ds/val"
+  CHANNELS: 3
+  JOINTS: 13
+  NUM_CLASSES: 4
+
+MODEL:
+  NAME: "fc_net"
+
+TRAIN:
+  EPOCHS: 500
+  LR: 0.01
+  LR_FACTOR: 0.1
+  LR_STEP:
+  - 150
+  - 300
+  - 450
+  BATCH_SIZE: 32
+  WEIGHTS: ''
+  OPTIMIZER: "adam"
+  MOMENTUM: 0.9
+  WEIGHT_DECAY: 0.0001
+  SHUFFLE: true
+
+TEST:
+  BATCH_SIZE: 32
+  WEIGHTS: ''
+  SHUFFLE: false
