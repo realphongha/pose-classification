@@ -26,9 +26,13 @@ def train(model, criterion, optimizer, train_loader, device):
         loss.backward()
         optimizer.step()
         
-    print("Loss:", np.mean(losses))
-    print("Accuracy:", accuracy_score(gt, pred))
+    mean_loss = np.mean(losses)
+    print("Loss:", mean_loss)
+    acc = accuracy_score(gt, pred)
+    print("Accuracy:", acc)
     print(classification_report(gt, pred))
+    
+    return acc, mean_loss
 
 def evaluate(model, criterion, val_loader, device):
     print("Evaluating...")
@@ -49,10 +53,11 @@ def evaluate(model, criterion, val_loader, device):
             pred.append(round(output_label[i]))
             gt.append(round(gt_label[i]))
         
-    print("Loss:", np.mean(losses))
+    mean_loss = np.mean(losses)
+    print("Loss:", mean_loss)
     acc = accuracy_score(gt, pred)
     print("Accuracy:", acc)
     clf_report = classification_report(gt, pred)
     print(clf_report)
     
-    return acc, clf_report
+    return acc, clf_report, mean_loss

@@ -9,8 +9,8 @@ CUDNN:
 
 DATASET: 
   NAME: "exam"
-  TRAIN: "datasets/exam_action_ds/train"
-  VAL: "datasets/exam_action_ds/val"
+  TRAIN: "datasets/exam_pose_classification_ds/train"
+  VAL: "datasets/exam_pose_classification_ds/val"
   CHANNELS: 3
   JOINTS: 13
   NUM_CLASSES: 4

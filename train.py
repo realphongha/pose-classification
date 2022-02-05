@@ -4,9 +4,11 @@ import json
 
 import argparse
 import yaml
+import matplotlib.pyplot as plt
 import torch
 import torch.backends.cudnn as cudnn
 import torch.optim as optim
+
 from torch.utils.data import DataLoader
 from torch.nn import CrossEntropyLoss
 
@@ -78,11 +80,20 @@ def main(cfg, output_path):
     best_clf_report = None
     best_ckpt = os.path.join(output_path, "best.pth")
     
+    train_loss = list()
+    val_loss = list()
+    train_acc = list()
+    val_acc = list()
+    
     for epoch in range(cfg["TRAIN"]["EPOCHS"]):
         print("EPOCH %i:" % epoch)
-        train(model, criterion, optimizer, train_loader, device)
+        acc, loss = train(model, criterion, optimizer, train_loader, device)
+        train_acc.append(acc)
+        train_loss.append(loss)
         lr_scheduler.step()
-        acc, clf_report = evaluate(model, criterion, val_loader, device)
+        acc, clf_report, loss = evaluate(model, criterion, val_loader, device)
+        val_acc.append(acc)
+        val_loss.append(loss)
         if acc > best_acc:
             best_acc = acc
             best_clf_report = clf_report
@@ -98,6 +109,25 @@ def main(cfg, output_path):
         file.write(best_clf_report)
         file.write("\n")
         file.close()
+        
+    epochs = range(cfg["TRAIN"]["EPOCHS"])
+    
+    fig = plt.figure()
+    plt.plot(epochs, train_acc, 'r', label='Training acc')
+    plt.plot(epochs, val_acc, 'b', label='Validation acc')
+    plt.title('Training and validation accuracy')
+    plt.legend()
+    fig.savefig(os.path.join(output_path, 'val_plot.png'), 
+                bbox_inches='tight')
+
+    fig = plt.figure()
+    plt.plot(epochs, train_loss, 'r', label='Training loss')
+    plt.plot(epochs, val_loss, 'b', label='Validation loss')
+    plt.title('Training and validation loss')
+    plt.legend()
+    fig.savefig(os.path.join(output_path, 'loss_plot.png'), 
+                bbox_inches='tight')
+    
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
