@@ -15,7 +15,7 @@ MODEL:
 
 TRAIN:
   SHUFFLE: true
-  GRIDSEARCH: false
+  GRIDSEARCH: true
   SVM:
     C: [0.1, 1, 10, 100]
     KERNEL: ["rbf", "linear"]
