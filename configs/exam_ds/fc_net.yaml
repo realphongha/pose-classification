@@ -1,4 +1,4 @@
-GPUS: "0"
+GPUS: "1"
 WORKERS: 4
 OUTPUT: "output"
 

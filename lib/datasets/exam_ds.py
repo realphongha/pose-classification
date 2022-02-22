@@ -76,3 +76,4 @@ if __name__ == "__main__":
     for i in range(end):
         pose, label = ds[i]
         print(pose.shape, label)
+        # print(pose.flatten())

@@ -22,6 +22,9 @@ def main(cfg, output_path):
     cudnn.deterministic = cfg["CUDNN"]["DETERMINISTIC"]
     cudnn.enabled = cfg["CUDNN"]["ENABLED"]
     
+    os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"   # see issue #152
+    os.environ["CUDA_VISIBLE_DEVICES"] = cfg["GPUS"]
+    
     device = 'cuda' if (torch.cuda.is_available() and cfg["GPUS"]) else 'cpu'
     print("Start training using device: %s" % device)
     print("Config:", cfg)
@@ -117,7 +120,7 @@ def main(cfg, output_path):
     plt.plot(epochs, val_acc, 'b', label='Validation acc')
     plt.title('Training and validation accuracy')
     plt.legend()
-    fig.savefig(os.path.join(output_path, 'val_plot.png'), 
+    fig.savefig(os.path.join(output_path, 'acc_plot.png'), 
                 bbox_inches='tight')
 
     fig = plt.figure()
@@ -145,7 +148,7 @@ if __name__ == "__main__":
             quit()
             
     datetime_str = datetime.datetime.now().strftime("--%Y-%m-%d--%H-%M")
-    output_path = os.path.join(cfg["OUTPUT"], 
+    output_path = os.path.join(os.path.join(cfg["OUTPUT"], "train"), 
                                cfg["MODEL"]["NAME"] + "--" +
                                cfg["DATASET"]["NAME"] + 
                                datetime_str)
