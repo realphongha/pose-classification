@@ -1,9 +1,10 @@
 # Project
 weights/*
+!weights/*.pkl
 datasets/*
 output/*
 log/*
-
+!___*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

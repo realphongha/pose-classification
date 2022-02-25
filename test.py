@@ -43,6 +43,8 @@ def main(cfg, output_path):
                     joints=cfg["DATASET"]["JOINTS"], 
                     num_cls=cfg["DATASET"]["NUM_CLASSES"])
         model.to(device)
+        weights = torch.load(cfg["TEST"]["WEIGHTS"], map_location=device)
+        model.load_state_dict(weights)
     else:
         raise NotImplementedError("%s is not implemented!" % 
                                   cfg["MODEL"]["NAME"])
@@ -54,7 +56,8 @@ def main(cfg, output_path):
         
     criterion = CrossEntropyLoss()
 
-    acc, clf_report, loss = evaluate(model, criterion, val_loader, device)
+    acc, clf_report, loss = evaluate(model, criterion, 
+                                     val_loader, device, log=False)
         
     print("Done testing!")
     print("Accuracy:", acc)
