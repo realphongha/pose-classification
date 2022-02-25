@@ -54,7 +54,7 @@ class ExamDs(torch.utils.data.Dataset):
             pose = pose_file.read().splitlines()[:self.joints]
             pose = [list(map(float, line.strip().split())) for line in pose]
             pose = np.array(pose)
-            assert pose.shape == (self.joints, self.channels), "Incorrect pose in %s" % pose_file_path
+            pose = pose[:, :self.channels]
             
         if self.is_train: 
             # flips:
