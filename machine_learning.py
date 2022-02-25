@@ -73,6 +73,7 @@ def main(cfg, opt, output_path):
     elif opt.mode.lower() == "test":
         engine = model(cfg, output_path,
                        X_test=X_test, y_test=y_test)
+        engine.load_model()
         acc, clf_report = engine.test()
         with open(os.path.join(output_path, "test.txt"), "w") as file:
             file.write("Accuracy: %f\n\n" % acc)
@@ -91,7 +92,7 @@ def main(cfg, opt, output_path):
             point = list(map(float, point))
             data.append(point)
         engine = model(cfg, output_path, X_test=data)
-        model.load_model()
+        engine.load_model()
         begin = time()
         res = engine.predict(np.array(data).flatten())
         sps = len(lines)/(time()-begin) # sentences per second
@@ -118,7 +119,7 @@ if __name__ == '__main__':
             quit()
             
     datetime_str = datetime.datetime.now().strftime("--%Y-%m-%d--%H-%M")
-    output_path = os.path.join(os.path.join(cfg["OUTPUT"], "train"), 
+    output_path = os.path.join(os.path.join(cfg["OUTPUT"], opt.mode), 
                                cfg["MODEL"]["NAME"] + "--" +
                                cfg["DATASET"]["NAME"] + 
                                datetime_str)

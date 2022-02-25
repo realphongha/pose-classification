@@ -19,7 +19,7 @@ class RF(MLBase):
         super().__init__(cfg, output_path, X_train, y_train, X_test, y_test)
         rf_cfg = cfg["TRAIN"]["RF"]
         if cfg["TRAIN"]["GRIDSEARCH"]:
-            rf_model = RandomForestClassifier()()
+            rf_model = RandomForestClassifier()
             hyperparams = {
                 "n_estimators": rf_cfg["N_ES"],
                 "max_depth": rf_cfg["MAX_DEPTH"],

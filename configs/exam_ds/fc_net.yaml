@@ -35,5 +35,5 @@ TRAIN:
 
 TEST:
   BATCH_SIZE: 32
-  WEIGHTS: ''
+  WEIGHTS: 'weights/fc_net.pth'
   SHUFFLE: false
