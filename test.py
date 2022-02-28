@@ -44,6 +44,8 @@ def main(cfg, output_path):
                     joints=cfg["DATASET"]["JOINTS"],
                     num_cls=cfg["DATASET"]["NUM_CLASSES"])
         model.to(device)
+        weights = torch.load(cfg["TEST"]["WEIGHTS"], map_location=device)
+        model.load_state_dict(weights)
     else:
         raise NotImplementedError("%s is not implemented!" %
                                   cfg["MODEL"]["NAME"])
@@ -55,13 +57,13 @@ def main(cfg, output_path):
 
     criterion = CrossEntropyLoss()
 
-    acc, clf_report, loss = evaluate(model, criterion, val_loader, device)
-
+    f1, acc, clf_report, loss = evaluate(model, criterion,
+                                     val_loader, device, log=False)
     print("Done testing!")
-    print("Accuracy:", acc)
+    print("Macro avg F1 score:", f1)
     print(clf_report)
     with open(os.path.join(output_path, "final_results.txt"), "w") as file:
-        file.write("Accuracy: %f\n\n" % acc)
+        file.write("Macro avg F1 score: %f\n\n" % f1)
         file.write(clf_report)
         file.write("\n")
         file.close()

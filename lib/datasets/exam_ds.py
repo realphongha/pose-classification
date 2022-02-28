@@ -56,7 +56,6 @@ class ExamDs(torch.utils.data.Dataset):
             pose = [list(map(float, line.strip().split())) for line in pose]
             pose = np.array(pose)
             pose = pose[:, :self.channels]
-
         if self.is_train:
             # flips:
             if self.cfg["TRAIN"]["FLIP"] and random.random() < self.cfg["TRAIN"]["FLIP"]:

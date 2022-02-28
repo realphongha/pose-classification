@@ -93,10 +93,13 @@ def main(cfg, opt, output_path):
                 "Example file is incorrect!"
             point = list(map(float, point))
             data.append(point)
-        engine = model(cfg, output_path, X_test=data)
+        data = np.array(data)
+        data[:, 0] -= np.min(data[:, 0])
+        data[:, 1] -= np.min(data[:, 1])
+        engine = model(cfg, output_path, X_test=[data.flatten()])
         engine.load_model()
         begin = time()
-        res = engine.predict(np.array(data).flatten())
+        res = engine.predict()
         sps = len(lines)/(time()-begin) # sentences per second
         print(res)
         print("Poses per second:", sps)
@@ -109,7 +112,7 @@ if __name__ == '__main__':
                         help='train, test or predict?')
     parser.add_argument('--cfg', type=str, default='configs/exam_ds/svm.yaml',
                         help='path to config file')
-    parser.add_argument('--file', type=str, default='test.txt',
+    parser.add_argument('--file', type=str, default='test_sitting.txt',
                         help='path to data file for predict')
     opt = parser.parse_args()
 
