@@ -19,13 +19,13 @@ MODEL:
   NAME: "fc_net"
 
 TRAIN:
-  EPOCHS: 500
-  LR: 0.01
+  EPOCHS: 30
+  LR: 0.05
+  EARLY_STOPPING: 5
   LR_FACTOR: 0.1
   LR_STEP:
-  - 150
-  - 300
-  - 450
+  - 20
+  - 25
   BATCH_SIZE: 32
   WEIGHTS: ''
   OPTIMIZER: "adam"

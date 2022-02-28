@@ -20,6 +20,7 @@ def main(cfg, opt, output_path):
     else:
         train_ds_loader = ds(data_path=cfg["DATASET"]["TRAIN"],
                         is_train=True,
+                        cfg=cfg,
                         channels=cfg["DATASET"]["CHANNELS"],
                         joints=cfg["DATASET"]["JOINTS"])
         X_train = []
@@ -29,17 +30,18 @@ def main(cfg, opt, output_path):
             y_train.append(label)
         X_train = np.array(X_train)
         y_train = np.array(y_train)
-        
+
         pickle.dump((X_train, y_train), open(train_cache_file, "wb"))
         print("Saved cached data to", train_cache_file)
-        
+
     val_cache_file = os.path.join(cfg["DATASET"]["VAL"], "data.pkl")
     if cfg["DATASET"]["CACHE"] and os.path.exists(val_cache_file):
             X_test, y_test = pickle.load(open(val_cache_file, "rb"))
             print("Loaded cached data from", val_cache_file)
-    else:  
+    else:
         val_ds_loader = ds(data_path=cfg["DATASET"]["VAL"],
                     is_train=False,
+                    cfg=cfg,
                     channels=cfg["DATASET"]["CHANNELS"],
                     joints=cfg["DATASET"]["JOINTS"])
         X_test = []
@@ -49,13 +51,13 @@ def main(cfg, opt, output_path):
             y_test.append(label)
         X_test = np.array(X_test)
         y_test = np.array(y_test)
-        
+
         pickle.dump((X_test, y_test), open(val_cache_file, "wb"))
         print("Saved cached data to", val_cache_file)
-    
-    print("Data shape:", X_train.shape, y_train.shape, 
+
+    print("Data shape:", X_train.shape, y_train.shape,
           X_test.shape, y_test.shape)
-        
+
     if opt.mode.lower() == "train":
         engine = model(cfg, output_path,
                        X_train=X_train, y_train=y_train,
@@ -69,7 +71,7 @@ def main(cfg, opt, output_path):
             file.write(train_clf_report)
             file.write("\n")
             file.close()
-        
+
     elif opt.mode.lower() == "test":
         engine = model(cfg, output_path,
                        X_test=X_test, y_test=y_test)
@@ -80,7 +82,7 @@ def main(cfg, opt, output_path):
             file.write(clf_report)
             file.write("\n")
             file.close()
-            
+
     elif opt.mode.lower() == "predict":
         f = open(opt.file, "r", encoding="utf8")
         lines = f.read().splitlines()[:cfg["DATASET"]["JOINTS"]]
@@ -103,28 +105,28 @@ def main(cfg, opt, output_path):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--mode', type=str, default='predict', 
+    parser.add_argument('--mode', type=str, default='predict',
                         help='train, test or predict?')
-    parser.add_argument('--cfg', type=str, default='configs/exam_ds/svm.yaml', 
+    parser.add_argument('--cfg', type=str, default='configs/exam_ds/svm.yaml',
                         help='path to config file')
-    parser.add_argument('--file', type=str, default='test.txt', 
+    parser.add_argument('--file', type=str, default='test.txt',
                         help='path to data file for predict')
     opt = parser.parse_args()
-    
+
     with open(opt.cfg, "r") as stream:
         try:
             cfg = yaml.safe_load(stream)
         except yaml.YAMLError as exc:
             print(exc)
             quit()
-            
+
     datetime_str = datetime.datetime.now().strftime("--%Y-%m-%d--%H-%M")
-    output_path = os.path.join(os.path.join(cfg["OUTPUT"], opt.mode), 
+    output_path = os.path.join(os.path.join(cfg["OUTPUT"], opt.mode),
                                cfg["MODEL"]["NAME"] + "--" +
-                               cfg["DATASET"]["NAME"] + 
+                               cfg["DATASET"]["NAME"] +
                                datetime_str)
-    os.makedirs(output_path, exist_ok=False)    
+    os.makedirs(output_path, exist_ok=False)
     with open(os.path.join(output_path, "configs.txt"), "w") as output_file:
         json.dump(cfg, output_file)
-        
+
     main(cfg, opt, output_path)

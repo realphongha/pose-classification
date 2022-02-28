@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 from tqdm import tqdm
-from sklearn.metrics import classification_report, accuracy_score
+from sklearn.metrics import classification_report, accuracy_score, f1_score
 
 
 def train(model, criterion, optimizer, train_loader, device):
@@ -10,7 +10,7 @@ def train(model, criterion, optimizer, train_loader, device):
     losses = list()
     pred = list()
     gt = list()
-    
+
     for data, label in tqdm(train_loader):
         data = data.float().to(device)
         label = label.long().to(device)
@@ -25,14 +25,15 @@ def train(model, criterion, optimizer, train_loader, device):
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-        
+
     mean_loss = np.mean(losses)
     print("Loss:", mean_loss)
     acc = accuracy_score(gt, pred)
-    print("Accuracy:", acc)
+    f1 = f1_score(gt, pred, average="macro")
+    print("Macro avg F1 score:", f1)
     print(classification_report(gt, pred))
-    
-    return acc, mean_loss
+
+    return f1, acc, mean_loss
 
 def evaluate(model, criterion, val_loader, device):
     print("Evaluating...")
@@ -40,7 +41,7 @@ def evaluate(model, criterion, val_loader, device):
     losses = list()
     pred = list()
     gt = list()
-    
+
     for data, label in tqdm(val_loader):
         data = data.float().to(device)
         label = label.long().to(device)
@@ -52,12 +53,14 @@ def evaluate(model, criterion, val_loader, device):
         for i in range(output_label.shape[0]):
             pred.append(round(output_label[i]))
             gt.append(round(gt_label[i]))
-        
+
     mean_loss = np.mean(losses)
     print("Loss:", mean_loss)
     acc = accuracy_score(gt, pred)
-    print("Accuracy:", acc)
+    f1 = f1_score(gt, pred, average="macro")
+    print("Macro avg F1 score:", f1)
     clf_report = classification_report(gt, pred)
     print(clf_report)
-    
-    return acc, clf_report, mean_loss
+
+    return f1, acc, clf_report, mean_loss
+

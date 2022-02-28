@@ -14,6 +14,8 @@ MODEL:
   NAME: "svm"
 
 TRAIN:
+  FLIP: 0.5
+  RANDOM_SCORE: 0.05
   SHUFFLE: true
   GRIDSEARCH: true
   SVM:
