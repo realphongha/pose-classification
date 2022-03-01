@@ -65,21 +65,23 @@ class ExamDs(torch.utils.data.Dataset):
                 for point in pose:
                     if random.random() < self.cfg["TRAIN"]["RANDOM_SCORE"]:
                         point[2] = random.random()
-
+        # print(pose)
         # normalizes:
-        pose[:, 0] -= np.min(pose[:, 0])
-        pose[:, 1] -= np.min(pose[:, 1])
+        min0, max0 = np.min(pose[:, 0]), np.max(pose[:, 0])
+        min1, max1 = np.min(pose[:, 1]), np.max(pose[:, 1])
+        pose[:, 0] = (pose[:, 0]-min0)/(max0-min0)
+        pose[:, 1] = (pose[:, 1]-min1)/(max1-min1)
         return pose, label
 
 
 if __name__ == "__main__":
-    ds = ExamDs(data_path=r'/home/phonghh/repos/pose-classification/datasets/exam_pose_classification_ds/train',
-                is_train=True,
+    ds = ExamDs(data_path=r'datasets/exam_pose_classification_ds/val',
+                is_train=False,
                 channels=3,
                 joints=13)
     end = 5
     for i in range(end):
         pose, label = ds[i]
-        print(pose.shape, label)
-        # print(pose.flatten())
+        print(pose.shape, pose, label)
+        print(list(pose.flatten()))
 

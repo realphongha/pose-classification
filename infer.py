@@ -47,7 +47,7 @@ def main(cfg, opt):
     data[:, 1] -= np.min(data[:, 1])
     data = torch.Tensor(data[None])
 
-    output_label, output, latency = infer(model, data, device, opt.test_speed)
+    output_label, output, raw_output, latency = infer(model, data, device, opt.test_speed)
         
     print("Done predicting!")
     print("Label:", output_label)

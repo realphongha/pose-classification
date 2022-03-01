@@ -20,8 +20,8 @@ MODEL:
 
 TRAIN:
   EPOCHS: 30
-  LR: 0.05
   EARLY_STOPPING: 5
+  LR: 0.05
   LR_FACTOR: 0.1
   LR_STEP:
   - 20

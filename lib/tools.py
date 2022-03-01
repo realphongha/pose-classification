@@ -82,5 +82,4 @@ def infer(model, data, device, speed_test_times=1):
     output_label = torch.max(output, 1).indices.cpu().detach().numpy()
     output_prob = torch.softmax(output, 1).cpu().detach().numpy()
 
-    return output_label, output_prob, np.mean(speeds)
-
+    return output_label, output_prob, output, np.mean(speeds)
