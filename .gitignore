@@ -1,6 +1,5 @@
 # Project
 weights/*
-!weights/*.pkl
 datasets/*
 output/*
 log/*

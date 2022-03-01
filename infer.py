@@ -43,8 +43,10 @@ def main(cfg, opt):
         data.append(point)
         
     data = np.array(data).astype(np.float32)
-    data[:, 0] -= np.min(data[:, 0])
-    data[:, 1] -= np.min(data[:, 1])
+    min0, max0 = np.min(data[:, 0]), np.max(data[:, 0])
+    min1, max1 = np.min(data[:, 1]), np.max(data[:, 1])
+    data[:, 0] = (data[:, 0]-min0)/(max0-min0)
+    data[:, 1] = (data[:, 1]-min1)/(max1-min1)
     data = torch.Tensor(data[None])
 
     output_label, output, raw_output, latency = infer(model, data, device, opt.test_speed)

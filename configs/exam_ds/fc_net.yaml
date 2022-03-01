@@ -1,5 +1,5 @@
-GPUS: "1"
-WORKERS: 4
+GPUS: "0"
+WORKERS: 2
 OUTPUT: "output"
 
 CUDNN:
@@ -19,14 +19,14 @@ MODEL:
   NAME: "fc_net"
 
 TRAIN:
-  EPOCHS: 500
+  EPOCHS: 40
   EARLY_STOPPING:
   LR: 0.01
   LR_FACTOR: 0.1
   LR_STEP:
-  - 150
-  - 300
-  - 450
+  - 10
+  - 20
+  - 30
   BATCH_SIZE: 32
   WEIGHTS: ''
   OPTIMIZER: "adam"
@@ -39,4 +39,4 @@ TRAIN:
 TEST:
   BATCH_SIZE: 32
   WEIGHTS: 'weights/fc_net.pth'
-  SHUFFLE: false
+  SHUFFLE: true
