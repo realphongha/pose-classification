@@ -4,6 +4,9 @@ import json
 
 import argparse
 import yaml
+import pandas as pd
+import seaborn as sn
+import matplotlib.pyplot as plt
 import torch
 import torch.backends.cudnn as cudnn
 
@@ -57,7 +60,7 @@ def main(cfg, output_path):
 
     criterion = CrossEntropyLoss()
 
-    f1, acc, clf_report, loss = evaluate(model, criterion,
+    f1, acc, clf_report, loss, conf_matrix = evaluate(model, criterion,
                                      val_loader, device, log=False)
     print("Done testing!")
     print("Macro avg F1 score:", f1)
@@ -67,7 +70,14 @@ def main(cfg, output_path):
         file.write(clf_report)
         file.write("\n")
         file.close()
-
+        
+    fig = plt.figure()
+    df_cm = pd.DataFrame(conf_matrix, range(conf_matrix.shape[0]), 
+                         range(conf_matrix.shape[0]))
+    sn.set(font_scale=1.4) # for label size
+    sn.heatmap(df_cm, annot=True, annot_kws={"size": 16}, fmt='g') # font size
+    fig.savefig(os.path.join(output_path, 'confusion_matrix.png'),
+                bbox_inches='tight')
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

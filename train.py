@@ -4,7 +4,9 @@ import json
 
 import argparse
 import yaml
+import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sn
 import torch
 import torch.backends.cudnn as cudnn
 import torch.optim as optim
@@ -83,6 +85,7 @@ def main(cfg, output_path):
 
     best_f1 = -1
     best_clf_report = None
+    best_conf_matrix = None
     best_ckpt = os.path.join(output_path, "best.pth")
     decreasing = 0
 
@@ -93,16 +96,18 @@ def main(cfg, output_path):
 
     for epoch in range(cfg["TRAIN"]["EPOCHS"]):
         print("EPOCH %i:" % epoch)
-        f1, acc, loss = train(model, criterion, optimizer, train_loader, device)
+        f1, acc, loss, conf_matrix = train(model, criterion, optimizer, train_loader, device)
         train_f1.append(f1)
         train_loss.append(loss)
         lr_scheduler.step()
-        f1, acc, clf_report, loss = evaluate(model, criterion, val_loader, device)
+        f1, acc, clf_report, loss, conf_matrix = evaluate(model, criterion, 
+                                                          val_loader, device)
         val_f1.append(f1)
         val_loss.append(loss)
         if f1 > best_f1:
             best_f1 = f1
             best_clf_report = clf_report
+            best_conf_matrix = conf_matrix
             torch.save(model.state_dict(), best_ckpt)
             print("Saved checkpoint to", best_ckpt)
             decreasing = 0
@@ -138,6 +143,14 @@ def main(cfg, output_path):
     plt.title('Training and validation loss')
     plt.legend()
     fig.savefig(os.path.join(output_path, 'loss_plot.png'),
+                bbox_inches='tight')
+    
+    fig = plt.figure()
+    df_cm = pd.DataFrame(best_conf_matrix, range(best_conf_matrix.shape[0]), 
+                         range(best_conf_matrix.shape[0]))
+    sn.set(font_scale=1.4) # for label size
+    sn.heatmap(df_cm, annot=True, annot_kws={"size": 16}, fmt='g') # font size
+    fig.savefig(os.path.join(output_path, 'confusion_matrix.png'),
                 bbox_inches='tight')
 
 

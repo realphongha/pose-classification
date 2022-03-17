@@ -2,7 +2,8 @@ import torch
 import numpy as np
 from time import time
 from tqdm import tqdm
-from sklearn.metrics import classification_report, accuracy_score, f1_score
+from sklearn.metrics import classification_report, accuracy_score, \
+    f1_score, confusion_matrix
 
 
 def train(model, criterion, optimizer, train_loader, device):
@@ -33,8 +34,9 @@ def train(model, criterion, optimizer, train_loader, device):
     f1 = f1_score(gt, pred, average="macro")
     print("Macro avg F1 score:", f1)
     print(classification_report(gt, pred))
+    conf_matrix = confusion_matrix(gt, pred)
 
-    return f1, acc, mean_loss
+    return f1, acc, mean_loss, conf_matrix
 
 def evaluate(model, criterion, val_loader, device, log=True):
     print("Evaluating...")
@@ -65,8 +67,9 @@ def evaluate(model, criterion, val_loader, device, log=True):
     clf_report = classification_report(gt, pred)
     if log:
         print(clf_report)
+    conf_matrix = confusion_matrix(gt, pred)
 
-    return f1, acc, clf_report, mean_loss
+    return f1, acc, clf_report, mean_loss, conf_matrix
 
 
 def infer(model, data, device, speed_test_times=1):
