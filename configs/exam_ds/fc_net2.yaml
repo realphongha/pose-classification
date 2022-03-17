@@ -1,0 +1,42 @@
+GPUS: "0"
+WORKERS: 2
+OUTPUT: "output"
+
+CUDNN:
+  BENCHMARK: true
+  DETERMINISTIC: false
+  ENABLED: true
+
+DATASET: 
+  NAME: "exam"
+  TRAIN: "datasets/exam_pose_classification_ds/train"
+  VAL: "datasets/exam_pose_classification_ds/val"
+  CHANNELS: 3
+  JOINTS: 13
+  NUM_CLASSES: 4
+
+MODEL:
+  NAME: "fc_net2"
+
+TRAIN:
+  EPOCHS: 40
+  EARLY_STOPPING:
+  LR: 0.01
+  LR_FACTOR: 0.1
+  LR_STEP:
+  - 10
+  - 20
+  - 30
+  BATCH_SIZE: 32
+  WEIGHTS: ''
+  OPTIMIZER: "adam"
+  MOMENTUM: 0.9
+  WEIGHT_DECAY: 0.0001
+  FLIP: 0.5
+  RANDOM_SCORE: 0.05
+  SHUFFLE: true
+
+TEST:
+  BATCH_SIZE: 32
+  WEIGHTS: 'weights/fc_net.pth'
+  SHUFFLE: true
