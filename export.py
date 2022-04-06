@@ -49,7 +49,7 @@ def main(opt, cfg):
                     joints=cfg["DATASET"]["JOINTS"], 
                     num_cls=cfg["DATASET"]["NUM_CLASSES"])
         model.to(device)
-        weights = torch.load(cfg["TEST"]["WEIGHTS"], map_location=device)
+        weights = torch.load(opt.weights, map_location=device)
         model.load_state_dict(weights)
         model.eval()
         
