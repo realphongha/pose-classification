@@ -25,7 +25,8 @@ def main(cfg, output_path):
     cudnn.enabled = cfg["CUDNN"]["ENABLED"]
 
     os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"   # see issue #152
-    os.environ["CUDA_VISIBLE_DEVICES"] = cfg["GPUS"]
+    if cfg["GPUS"]:
+        os.environ["CUDA_VISIBLE_DEVICES"] = cfg["GPUS"]
 
     device = 'cuda' if (torch.cuda.is_available() and cfg["GPUS"]) else 'cpu'
     print("Start training using device: %s" % device)
@@ -100,7 +101,7 @@ def main(cfg, output_path):
         train_f1.append(f1)
         train_loss.append(loss)
         lr_scheduler.step()
-        f1, acc, clf_report, loss, conf_matrix = evaluate(model, criterion, 
+        f1, acc, clf_report, loss, conf_matrix = evaluate(model, criterion,
                                                           val_loader, device)
         val_f1.append(f1)
         val_loss.append(loss)
@@ -144,9 +145,9 @@ def main(cfg, output_path):
     plt.legend()
     fig.savefig(os.path.join(output_path, 'loss_plot.png'),
                 bbox_inches='tight')
-    
+
     fig = plt.figure()
-    df_cm = pd.DataFrame(best_conf_matrix, range(best_conf_matrix.shape[0]), 
+    df_cm = pd.DataFrame(best_conf_matrix, range(best_conf_matrix.shape[0]),
                          range(best_conf_matrix.shape[0]))
     sn.set(font_scale=1.4) # for label size
     sn.heatmap(df_cm, annot=True, annot_kws={"size": 16}, fmt='g') # font size

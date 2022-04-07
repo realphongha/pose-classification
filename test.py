@@ -24,7 +24,8 @@ def main(cfg, output_path):
     cudnn.enabled = cfg["CUDNN"]["ENABLED"]
 
     os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"   # see issue #152
-    os.environ["CUDA_VISIBLE_DEVICES"] = cfg["GPUS"]
+    if cfg["GPUS"]:
+        os.environ["CUDA_VISIBLE_DEVICES"] = cfg["GPUS"]
 
     device = 'cuda' if (torch.cuda.is_available() and cfg["GPUS"]) else 'cpu'
     print("Start testing using device: %s" % device)
@@ -70,9 +71,9 @@ def main(cfg, output_path):
         file.write(clf_report)
         file.write("\n")
         file.close()
-        
+
     fig = plt.figure()
-    df_cm = pd.DataFrame(conf_matrix, range(conf_matrix.shape[0]), 
+    df_cm = pd.DataFrame(conf_matrix, range(conf_matrix.shape[0]),
                          range(conf_matrix.shape[0]))
     sn.set(font_scale=1.4) # for label size
     sn.heatmap(df_cm, annot=True, annot_kws={"size": 16}, fmt='g') # font size

@@ -12,26 +12,27 @@ def main(cfg, opt):
     cudnn.benchmark = cfg["CUDNN"]["BENCHMARK"]
     cudnn.deterministic = cfg["CUDNN"]["DETERMINISTIC"]
     cudnn.enabled = cfg["CUDNN"]["ENABLED"]
-    
+
     os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"   # see issue #152
-    os.environ["CUDA_VISIBLE_DEVICES"] = cfg["GPUS"]
-    
+    if cfg["GPUS"]:
+        os.environ["CUDA_VISIBLE_DEVICES"] = cfg["GPUS"]
+
     device = 'cuda' if (torch.cuda.is_available() and cfg["GPUS"]) else 'cpu'
     print("Start predicting using device: %s" % device)
     print("Config:", cfg)
-        
+
     if cfg["MODEL"]["NAME"] in NETS:
         Net = NETS[cfg["MODEL"]["NAME"]]
-        model = Net(channels=cfg["DATASET"]["CHANNELS"], 
-                    joints=cfg["DATASET"]["JOINTS"], 
+        model = Net(channels=cfg["DATASET"]["CHANNELS"],
+                    joints=cfg["DATASET"]["JOINTS"],
                     num_cls=cfg["DATASET"]["NUM_CLASSES"])
         model.to(device)
         weights = torch.load(cfg["TEST"]["WEIGHTS"], map_location=device)
         model.load_state_dict(weights)
     else:
-        raise NotImplementedError("%s is not implemented!" % 
+        raise NotImplementedError("%s is not implemented!" %
                                   cfg["MODEL"]["NAME"])
-        
+
     f = open(opt.file, "r", encoding="utf8")
     lines = f.read().splitlines()[:cfg["DATASET"]["JOINTS"]]
     data = list()
@@ -41,7 +42,7 @@ def main(cfg, opt):
             "Example file is incorrect!"
         point = list(map(float, point))
         data.append(point)
-        
+
     data = np.array(data).astype(np.float32)
     min0, max0 = np.min(data[:, 0]), np.max(data[:, 0])
     min1, max1 = np.min(data[:, 1]), np.max(data[:, 1])
@@ -50,36 +51,36 @@ def main(cfg, opt):
     data = torch.Tensor(data[None])
 
     output_label, output, raw_output, latency = infer(model, data, device, opt.test_speed)
-        
+
     print("Done predicting!")
     print("Label:", output_label)
     print("Label prob:", output)
     print("Latency:", latency)
     print("FPS:", 1.0/latency)
-    
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config', 
-                        type=str, 
-                        default='configs/exam_ds/fc_net.yaml', 
+    parser.add_argument('--config',
+                        type=str,
+                        default='configs/exam_ds/fc_net.yaml',
                         help='path to config file')
-    parser.add_argument('--file', 
-                        type=str, 
-                        default='test_hand_reach_out.txt', 
+    parser.add_argument('--file',
+                        type=str,
+                        default='test_hand_reach_out.txt',
                         help='path to test file')
-    parser.add_argument('--test-speed', 
-                        type=int, 
-                        default=100, 
+    parser.add_argument('--test-speed',
+                        type=int,
+                        default=100,
                         help='run n times to test speed')
     opt = parser.parse_args()
-    
+
     with open(opt.config, "r") as stream:
         try:
             cfg = yaml.safe_load(stream)
         except yaml.YAMLError as exc:
             print(exc)
             quit()
-            
+
     main(cfg, opt)
-    
+
