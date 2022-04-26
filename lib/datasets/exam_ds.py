@@ -2,6 +2,7 @@ import os
 import random
 import torch
 import numpy as np
+from ..utils.points import angle_between, rotate_kps
 
 
 class ExamDs(torch.utils.data.Dataset):
@@ -54,7 +55,7 @@ class ExamDs(torch.utils.data.Dataset):
         with open(pose_file_path, "r") as pose_file:
             pose = pose_file.read().splitlines()[:self.joints]
             pose = [list(map(float, line.strip().split())) for line in pose]
-            pose = np.array(pose)
+            pose = np.float32(pose)
             pose = pose[:, :self.channels]
         if self.is_train:
             # flips:
@@ -67,6 +68,13 @@ class ExamDs(torch.utils.data.Dataset):
                         point[2] = random.random()
         # print(pose)
         # normalizes:
+        try:
+            if self.cfg["DATASET"]["SPINE_NORMALIZATION"]:
+                spine_vector = ((pose[6, :2]+pose[5, :2]-pose[8, :2]-pose[7, :2])/2)
+                rotate_rad = angle_between(spine_vector, (0, -1))
+                pose[:, :2] = rotate_kps(pose[:, :2], alpha=rotate_rad)
+        except KeyError:
+            pass
         min0, max0 = np.min(pose[:, 0]), np.max(pose[:, 0])
         min1, max1 = np.min(pose[:, 1]), np.max(pose[:, 1])
         pose[:, 0] = (pose[:, 0]-min0)/(max0-min0)
