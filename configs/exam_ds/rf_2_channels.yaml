@@ -1,0 +1,39 @@
+WORKERS: 2
+OUTPUT: "output"
+
+DATASET: 
+  NAME: "exam"
+  TRAIN: "datasets/exam_pose_classification_ds/train"
+  VAL: "datasets/exam_pose_classification_ds/val"
+  CHANNELS: 2
+  JOINTS: 13
+  NUM_CLASSES: 4
+  CACHE: true
+
+MODEL:
+  NAME: "rf"
+
+TRAIN:
+  FLIP: 0.5
+  RANDOM_SCORE: 0.05
+  SHUFFLE: true
+  GRIDSEARCH: true
+  RF:
+    N_ES: [100, 500, 1000]
+    MAX_DEPTH: [5, 8, 15]
+    MIN_SPLIT: [2, 5, 10]
+    MIN_LEAF: [1, 2, 4]
+    MAX_FEATURES: ["sqrt", "log2"]
+    CV: 4
+  # RF:
+  #   N_ES: [100, 500, 1000]
+  #   MAX_DEPTH: [5, 8, 15]
+  #   MIN_SPLIT: [2, 5, 10]
+  #   MIN_LEAF: [1, 2, 4]
+  #   MAX_FEATURES: ["sqrt", "log2"]
+  #   CV: 4
+
+TEST:
+  WEIGHTS: 'weights/rf.pkl'
+
+DEBUG: true
