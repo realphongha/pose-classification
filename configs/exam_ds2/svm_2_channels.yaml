@@ -1,0 +1,35 @@
+WORKERS: 2
+OUTPUT: "output"
+
+DATASET: 
+  NAME: "exam2"
+  TRAIN: "datasets/exam_pose_classification_ds2/train"
+  VAL: "datasets/exam_pose_classification_ds2/val"
+  CHANNELS: 2
+  JOINTS: 13
+  NUM_CLASSES: 4
+  CACHE: true
+
+MODEL:
+  NAME: "svm"
+
+TRAIN:
+  FLIP: 0.5
+  RANDOM_SCORE: 0.05
+  SHUFFLE: true
+  GRIDSEARCH: true
+  SVM:
+    C: [0.1, 1, 10, 100]
+    KERNEL: ["rbf", "linear"]
+    GAMMA: ["auto", "scale"]
+    CV: 4
+  # SVM:
+  #   C: 1
+  #   KERNEL: "rbf"
+  #   GAMMA: "auto"
+  #   CV: 4
+
+TEST:
+  WEIGHTS: 'weights/svm_exam2.pkl'
+
+DEBUG: true
