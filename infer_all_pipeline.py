@@ -21,7 +21,7 @@ def main(cfg, opt):
         raise NotImplementedError
 
     if opt.pose.endswith(".mnn"):
-        pose_engine = UdpPsaPoseMnn(opt.pose, (192, 256))
+        pose_engine = UdpPoseMnn(opt.pose, (192, 256))
 
     cudnn.benchmark = cfg["CUDNN"]["BENCHMARK"]
     cudnn.deterministic = cfg["CUDNN"]["DETERMINISTIC"]
@@ -160,10 +160,10 @@ if __name__ == "__main__":
     parser.add_argument('--source',
                         type=str,
                         default='1',
-                        help='0 for webcam, 1 for IP server')
+                        help='0 for webcam, 1 for IP server app on Android')
     parser.add_argument('--ip',
                         type=str,
-                        default='http://192.168.0.135:8080/shot.jpg',
+                        default='http://192.168.10.41:8080/shot.jpg',
                         help='IP server address')
     parser.add_argument('--device',
                         type=str,

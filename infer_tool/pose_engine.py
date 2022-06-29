@@ -3,7 +3,7 @@ import numpy as np
 from abc import ABCMeta, abstractmethod
 
 
-class UdpPsaPoseAbs(metaclass=ABCMeta):
+class UdpPoseAbs(metaclass=ABCMeta):
     
     SKELETONS = {"coco":[
                     [16,14], [14,12], [17,15], [15,13], [12,13], [6,12], [7,13], 
@@ -20,7 +20,7 @@ class UdpPsaPoseAbs(metaclass=ABCMeta):
         self.input_shape = input_shape
         
         try:
-            self.skeleton = UdpPsaPoseAbs.SKELETONS[data_type]
+            self.skeleton = UdpPoseAbs.SKELETONS[data_type]
         except KeyError:
             self.skeleton = None
         self.data_type = "coco"
@@ -95,7 +95,7 @@ class UdpPsaPoseAbs(metaclass=ABCMeta):
         return img.transpose(2, 0, 1)
     
     def _postprocess(self, heatmaps):
-        preds, maxvals = UdpPsaPoseAbs.get_max_preds(heatmaps)
+        preds, maxvals = UdpPoseAbs.get_max_preds(heatmaps)
         return preds, maxvals
     
     @abstractmethod
@@ -103,10 +103,10 @@ class UdpPsaPoseAbs(metaclass=ABCMeta):
         pass
 
     
-class UdpPsaPoseOnnx(UdpPsaPoseAbs):
+class UdpPoseOnnx(UdpPoseAbs):
     
     def __init__(self, model_path, input_shape, data_type="coco"):
-        super(UdpPsaPoseOnnx, self).__init__(input_shape, data_type)
+        super(UdpPoseOnnx, self).__init__(input_shape, data_type)
         
         import onnxruntime
         
@@ -121,11 +121,11 @@ class UdpPsaPoseOnnx(UdpPsaPoseAbs):
         return keypoints, maxvals, output.shape
 
 
-class UdpPsaPoseMnn(UdpPsaPoseAbs):
+class UdpPoseMnn(UdpPoseAbs):
     
     def __init__(self, model_path, input_shape, data_type="coco", 
         heatmap_shape=(1, 17, 64, 48)):
-        super(UdpPsaPoseMnn, self).__init__(input_shape, data_type)
+        super(UdpPoseMnn, self).__init__(input_shape, data_type)
         
         import MNN
         self.MNNlib = MNN
@@ -159,9 +159,9 @@ class UdpPsaPoseMnn(UdpPsaPoseAbs):
 if __name__ == "__main__":
     file = "img.jpg"
     input_shape = (192, 256)
-    # engine = UdpPsaPoseOnnx("weights/shufflenetv2plus_pixel_shuffle_256x192_small.onnx",
+    # engine = UdpPoseOnnx("weights/shufflenetv2plus_pixel_shuffle_256x192_small.onnx",
     #                         input_shape, "coco")
-    engine = UdpPsaPoseMnn("weights/shufflenetv2plus_pixel_shuffle_256x192_small.mnn",
+    engine = UdpPoseMnn("weights/shufflenetv2plus_pixel_shuffle_256x192_small.mnn",
                             input_shape, "coco", (1, 17, 64, 48))
     img = cv2.imread(file)
     keypoints, maxvals, output_shape = engine.infer_pose(img.copy())
