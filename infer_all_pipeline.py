@@ -22,6 +22,8 @@ def main(cfg, opt):
 
     if opt.pose.endswith(".mnn"):
         pose_engine = UdpPoseMnn(opt.pose, (192, 256))
+    elif opt.pose.endswith(".onnx"):
+        pose_engine = UdpPoseOnnx(opt.pose, (192, 256))
 
     cudnn.benchmark = cfg["CUDNN"]["BENCHMARK"]
     cudnn.deterministic = cfg["CUDNN"]["DETERMINISTIC"]
@@ -69,7 +71,7 @@ def main(cfg, opt):
             real_pose[:, 1] *= pose_img.shape[0] / output_shape[2]
             real_pose[:, 0] += x1
             real_pose[:, 1] += y1
-            pose_engine.draw_keypoints(frame, real_pose.astype(int)[None])
+            pose_engine.draw_keypoints(frame, real_pose.astype(int)[None], hands=True)
             data = pose[:13].astype(np.float32)
             min0, max0 = np.min(data[:, 0]), np.max(data[:, 0])
             min1, max1 = np.min(data[:, 1]), np.max(data[:, 1])
@@ -163,7 +165,7 @@ if __name__ == "__main__":
                         help='0 for webcam, 1 for IP server app on Android')
     parser.add_argument('--ip',
                         type=str,
-                        default='http://192.168.10.41:8080/shot.jpg',
+                        default='http://192.168.0.135:8080/shot.jpg',
                         help='IP server address')
     parser.add_argument('--device',
                         type=str,
@@ -175,7 +177,7 @@ if __name__ == "__main__":
                         help='object detection weights path')
     parser.add_argument('--pose',
                         type=str,
-                        default='weights/shufflenetv2plus_pixel_shuffle_256x192_small.mnn',
+                        default='weights/pose_shufflenetv2_plus_aid.onnx',
                         help='pose estimation weights path')
     opt = parser.parse_args()
 

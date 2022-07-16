@@ -58,7 +58,8 @@ class UdpPoseAbs(metaclass=ABCMeta):
         preds *= pred_mask
         return preds, maxvals
     
-    def draw_keypoints(self, image, keypoints, hands=False, radius=5):
+    def draw_keypoints(self, image, keypoints, hands=False, radius=5, 
+        show_num=False):
         if len(keypoints) == 0:
             return image
         for kpts in keypoints:
@@ -66,12 +67,17 @@ class UdpPoseAbs(metaclass=ABCMeta):
             kpts = [list(map(int, x)) for x in kpts]
             if self.skeleton:
                 for kid1, kid2 in self.skeleton:
-                    if kid1 >= 13 or kid2 >= 13: continue
+                    if kid1 > 13 or kid2 > 13: continue
                     cv2.line(image, tuple(kpts[kid1-1]), tuple(kpts[kid2-1]), (0, 255, 0), 2, cv2.LINE_AA)
             i = 0
             for x, y in kpts:
                 if i >= 13: continue
-                cv2.circle(image, (x, y), radius, (255, 0, 0), 5, cv2.LINE_AA)
+                if show_num:
+                    cv2.putText(image, str(i), (x, y), 
+                        cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, 
+                        cv2.LINE_AA)
+                else:
+                    cv2.circle(image, (x, y), radius, (255, 0, 0), 5, cv2.LINE_AA)
                 # cv2.putText(image, str(i), (x, y), cv2.FONT_HERSHEY_SIMPLEX,
                 #     1, (0, 0, 0))
                 i += 1

@@ -1,5 +1,6 @@
 import os
 import random
+from matplotlib.pyplot import sca
 import torch
 import numpy as np
 from tqdm import tqdm
@@ -73,6 +74,41 @@ class ExamDs2(torch.utils.data.Dataset):
                 for point in pose:
                     if random.random() < self.cfg["TRAIN"]["RANDOM_SCORE"]:
                         point[2] = random.random()
+            # rotates:
+            try:
+                min_degree, max_degree = self.cfg["TRAIN"]["ROTATE"]
+                degree = random.randint(min_degree, max_degree)
+                pose[:, :2] = rotate_kps(pose[:, :2], degrees=degree)
+            except KeyError:
+                pass
+            except Exception as e:
+                print("Exception when rotating keypoints:", e)
+            # extends body parts:
+            try:
+                if self.cfg["TRAIN"]["EXTEND_BODY_PARTS"]:
+                    min_perc, max_perc = self.cfg["TRAIN"]["EXTEND_BODY_PARTS"]
+                    # forearms:
+                    perc = random.randint(min_perc)
+                    ratio = perc/100
+                    pose[10, :2] += (pose[10, :2] - pose[8, :2]) * ratio
+                    pose[9, :2] += (pose[9, :2] - pose[7, :2]) * ratio
+                    # upper arms:
+                    perc = random.randint(min_perc)
+                    ratio = perc/100
+                    pose[10, :2] += (pose[8, :2] - pose[6, :2]) * ratio
+                    pose[8, :2] += (pose[8, :2] - pose[6, :2]) * ratio
+                    pose[9, :2] += (pose[7, :2] - pose[5, :2]) * ratio
+                    pose[7, :2] += (pose[7, :2] - pose[5, :2]) * ratio
+                    # body:
+                    perc = random.randint(min_perc)
+                    ratio = perc/100
+                    pose[12, :2] += (pose[12, :2] - pose[6, :2]) * ratio
+                    pose[11, :2] += (pose[11, :2] - pose[5, :2]) * ratio
+
+            except KeyError:
+                pass
+            except Exception as e:
+                print("Exception when extending body parts:", e)
         # print(pose)
         # normalizes:
         try:
@@ -90,18 +126,42 @@ class ExamDs2(torch.utils.data.Dataset):
 
 
 if __name__ == "__main__":
+    import cv2
+    skeletons = [[16,14], [14,12], [17,15], [15,13], [12,13], [6,12], [7,13], 
+                 [6,7], [6,8], [7,9], [8,10], [9,11], [2,3], [1,2], [1,3], [2,4], 
+                 [3,5], [4,6], [5,7]]
     ds = ExamDs2(data_path=r'datasets/exam_pose_classification_ds2/val',
                 is_train=False,
                 channels=3,
                 joints=13, 
                 cfg={
                     "TRAIN": {
-                        "SPINE_NORMALIZATION": False
+                        "SPINE_NORMALIZATION": False,
+                        "ROTATE": (-30, 30),
+                        "EXTEND_BODY_PARTS": (-20, 20)
                     }
                 })
-    end = 5
-    for i in range(end):
+    num = 20
+    img_size = 320
+    while True:
+        num -= 1
+        if num < 0: break
+        i = random.randrange(0, len(ds))
         pose, label = ds[i]
-        print(pose.shape, pose, label)
-        print(list(pose.flatten()))
+        img = np.zeros((img_size, img_size, 3), dtype=np.float32)
+        scaled_pose = list()
+        for x, y, _ in pose:
+            x, y = int(x*img_size), int(y*img_size)
+            scaled_pose.append((x, y))
+        for kp in scaled_pose:
+            cv2.circle(img, kp, 5, (255, 255, 255), 5, cv2.LINE_AA)
+        for skeleton in skeletons:
+            s, e = skeleton[0]-1, skeleton[1]-1
+            if s >= 13 or e >= 13: continue
+            cv2.line(img, scaled_pose[s], scaled_pose[e], (0, 255, 0), 1, 
+                cv2.LINE_AA)
+        print("Label:", label)
+        cv2.imshow("Keypoints", img)
+        cv2.waitKey()
+        # print(pose.shape, pose, label)
 
