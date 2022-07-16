@@ -22,7 +22,7 @@ def rotate_kps(kps, degrees=None, alpha=None, anchor=None):
     assert degrees is None or alpha is None
     assert not (degrees is None and alpha is None)
     kps_arr = np.array(kps, dtype=np.float32)
-    if degrees:
+    if degrees is not None:
         alpha = -degrees * math.pi / 180
     if anchor:
         x_anchor, y_anchor = anchor

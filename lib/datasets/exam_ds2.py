@@ -88,19 +88,19 @@ class ExamDs2(torch.utils.data.Dataset):
                 if self.cfg["TRAIN"]["EXTEND_BODY_PARTS"]:
                     min_perc, max_perc = self.cfg["TRAIN"]["EXTEND_BODY_PARTS"]
                     # forearms:
-                    perc = random.randint(min_perc)
+                    perc = random.randint(min_perc, max_perc)
                     ratio = perc/100
                     pose[10, :2] += (pose[10, :2] - pose[8, :2]) * ratio
                     pose[9, :2] += (pose[9, :2] - pose[7, :2]) * ratio
                     # upper arms:
-                    perc = random.randint(min_perc)
+                    perc = random.randint(min_perc, max_perc)
                     ratio = perc/100
                     pose[10, :2] += (pose[8, :2] - pose[6, :2]) * ratio
                     pose[8, :2] += (pose[8, :2] - pose[6, :2]) * ratio
                     pose[9, :2] += (pose[7, :2] - pose[5, :2]) * ratio
                     pose[7, :2] += (pose[7, :2] - pose[5, :2]) * ratio
                     # body:
-                    perc = random.randint(min_perc)
+                    perc = random.randint(min_perc, max_perc)
                     ratio = perc/100
                     pose[12, :2] += (pose[12, :2] - pose[6, :2]) * ratio
                     pose[11, :2] += (pose[11, :2] - pose[5, :2]) * ratio
